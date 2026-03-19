@@ -83,5 +83,7 @@ void list_clear(tlist_head *head){
 
     head->next = head;
     head->prev = head;
+
+    //printf("Список очищен.\n");
 }
 
