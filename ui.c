@@ -55,7 +55,6 @@ void run_experiment(tlist_head *head, int runs) {
             list_clear(head); 
             clock_t start, end;
 
-            // 1. Замер вставки
             start = clock(); 
             for (int i = 0; i < n; i++) {
                 data_add_end(head, rand(), (double)rand()); 
@@ -63,7 +62,6 @@ void run_experiment(tlist_head *head, int runs) {
             end = clock(); 
             total_time_add += ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
 
-            // 2. Замер поиска (худший случай)
             start = clock();
             data_lookup(head, -1); 
             end = clock();
