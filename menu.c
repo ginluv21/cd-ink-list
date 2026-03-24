@@ -5,7 +5,7 @@ int main(void) {
     LIST_HEAD(my_list);
     tlist_head *ptr = &my_list;
     int choice;
-    
+
     srand(time(NULL)); // Инициализация генератора для эксперимента
 
     do {

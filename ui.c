@@ -40,41 +40,43 @@ void load_from_file(tlist_head *head,const char *filename){
 }
 // Экспериментальное исследование с усреднением (runs передается как аргумент)
 void run_experiment(tlist_head *head, int runs) {
-    if (runs <= 0) runs = 1; // Защита: если передали бред, делаем хотя бы 1 прогон
+    if (runs <= 0) runs = 1;
 
     printf("\n--- Экспериментальное исследование (Усреднение по %d прогонам) ---\n", runs);
-    printf("Кол-во элементов | Время data_add_end (мс) | Время data_lookup (мс)\n");
+    printf("Кол-во элементов | Время data_add_end (мкс) | Время data_lookup (мс)\n");
     printf("-----------------------------------------------------------------\n");
 
-    // Цикл от 50 000 до 500 000 с шагом 50 000
     for (int n = 50000; n <= 500000; n += 50000) {
-        double total_time_add = 0.0;
+        double total_time_add    = 0.0;
         double total_time_lookup = 0.0;
 
         for (int r = 0; r < runs; r++) {
-            list_clear(head); 
-            clock_t start, end;
+            list_clear(head);
 
-            start = clock(); 
-            for (int i = 0; i < n; i++) {
-                data_add_end(head, rand(), (double)rand()); 
-            }
-            end = clock(); 
-            total_time_add += ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
+            // Заполняем список до N элементов
+            for (int i = 0; i < n; i++)
+                data_add_end(head, rand(), (double)rand());
 
+            // Замеряем один вызов add_end на уже заполненном списке
+            clock_t start = clock();
+            for (int i = 0; i < 1000; i++)
+                data_add_end(head, rand(), (double)rand());
+            clock_t end = clock();
+            total_time_add += ((double)(end - start) / CLOCKS_PER_SEC) * 1e6 / 1000.0;
+
+            // Замеряем lookup по несуществующему ключу (обход всего списка)
             start = clock();
-            data_lookup(head, -1); 
+            data_lookup(head, -1);
             end = clock();
             total_time_lookup += ((double)(end - start) / CLOCKS_PER_SEC) * 1000.0;
         }
-        
-        double avg_time_add = total_time_add / runs;
+
+        double avg_time_add    = total_time_add    / runs;
         double avg_time_lookup = total_time_lookup / runs;
 
-        printf("%16d | %23.2f | %22.2f\n", n, avg_time_add, avg_time_lookup);
+        printf("%16d | %24.3f | %22.2f\n", n, avg_time_add, avg_time_lookup);
     }
-    
-    list_clear(head); 
+
+    list_clear(head);
     printf("-----------------------------------------------------------------\n");
 }
-
