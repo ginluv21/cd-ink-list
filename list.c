@@ -49,8 +49,6 @@ void data_delete(tlist_head *head, int key){
 
         if(item->key == key){
             list_del(curr->prev, curr->next);
-            item->list.next = NULL;
-            item->list.prev = NULL;
             free(item);
             printf("Элемент с ключом %d удален.\n", key);
             return;
@@ -77,8 +75,6 @@ void list_clear(tlist_head *head){
     while (curr != head){
         tlist_head *next_node = curr->next;
         tdata *item = container_of(curr, tdata, list);
-        item->list.next = NULL;
-        item->list.prev = NULL;
         free(item);
         curr = next_node;
     }
