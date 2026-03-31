@@ -39,7 +39,7 @@ void load_from_file(tlist_head *head,const char *filename){
 
 }
 // Экспериментальное исследование с усреднением (runs передается как аргумент)
-void run_experiment(tlist_head *head, int runs) {
+/*void run_experiment(tlist_head *head, int runs) {
     if (runs <= 0) runs = 1;
 
     printf("\n--- Экспериментальное исследование (Усреднение по %d прогонам) ---\n", runs);
@@ -79,4 +79,55 @@ void run_experiment(tlist_head *head, int runs) {
 
     list_clear(head);
     printf("-----------------------------------------------------------------\n");
+};*/
+
+static double wtime(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec * 1e-9;
+}
+
+void run_experiment(tlist_head *head, int runs) {
+    if (runs <= 0) runs = 1;
+
+    printf("\n--- Экспериментальное исследование (Усреднение по %d прогонам) ---\n", runs);
+    printf("%-18s | %-24s | %-20s\n",
+           "Кол-во элементов", "Время 1 add_end (мс)", "Время 1 lookup (мс)");
+    printf("--------------------------------------------------------------------\n");
+
+    const int ADD_ITERS    = 10000;
+    const int LOOKUP_ITERS = 10000;
+
+    for (int n = 50000; n <= 500000; n += 50000) {
+        double total_time_add    = 0.0;
+        double total_time_lookup = 0.0;
+
+        for (int r = 0; r < runs; r++) {
+            list_clear(head);
+
+            // Заполняем список до N элементов
+            for (int i = 0; i < n; i++)
+                data_add_end(head, i, (double)i);
+
+            // Замеряем ADD_ITERS вызовов add_end, берём среднее
+            double start = wtime();
+            for (int i = 0; i < ADD_ITERS; i++)
+                data_add_end(head, n + i, 0.0);
+            total_time_add += (wtime() - start) / ADD_ITERS * 1000.0;
+
+            // Замеряем LOOKUP_ITERS вызовов lookup, берём среднее
+            start = wtime();
+            for (int i = 0; i < LOOKUP_ITERS; i++)
+                data_lookup(head, rand() % n);
+            total_time_lookup += (wtime() - start) / LOOKUP_ITERS * 1000.0;
+        }
+
+        printf("%-18d | %-24.8f | %-20.8f\n",
+               n,
+               total_time_add    / runs,
+               total_time_lookup / runs);
+    }
+
+    list_clear(head);
+    printf("--------------------------------------------------------------------\n");
 }
