@@ -84,7 +84,7 @@ int main(void) {
                 printf("Список очищен.\n");
                 break;
             case 8:
-                run_experiment(ptr, 1);
+                run_experiment(ptr, 5);
                 break;
             case 0:
                 list_clear(ptr);
